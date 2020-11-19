@@ -1,0 +1,12 @@
+Premier doc :
+Model : LSTM combined with CNN image embedder and word embeddings
+All LSTM share the same parameters
+Une phrase est représentée sous la forme d'un vecteur one-hot, où chaque mot du dictionnaire correspond à une valeur du vecteur. 
+Le vecteur fait donc la taille du dictionnaire.
+La fonction de perte est "the negative log likelihood"
+
+
+
+Deuxième doc :
+
+
