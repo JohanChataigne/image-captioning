@@ -32,7 +32,7 @@ class Rescale(object):
 
         img = transform.resize(image, (new_h, new_w))
 
-        return {'image': img, 'captions': sample['captions']}
+        return {'image': img, 'caption': sample['caption']}
 
 class RandomCrop(object):
     """Crop randomly the image in a sample.
@@ -51,7 +51,7 @@ class RandomCrop(object):
             self.output_size = output_size
 
     def __call__(self, sample):
-        image, captions = sample['image'], sample['captions']
+        image, caption = sample['image'], sample['caption']
 
         h, w = image.shape[:2]
         new_h, new_w = self.output_size
@@ -63,31 +63,33 @@ class RandomCrop(object):
                       left: left + new_w]
 
 
-        return {'image': image, 'captions': captions}
+        return {'image': image, 'caption': caption}
     
 class ToTensor(object):
     """Convert ndarrays in a sample to Tensors."""
 
     def __call__(self, sample):
-        image, captions = sample['image'], sample['captions']
+        image, caption = sample['image'], sample['caption']
 
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C X H X W
         image = image.transpose((2, 0, 1))
         return {'image': torch.from_numpy(image),
-                'captions': captions}
+                'caption': caption}
     
     
 class Tokenize(object):
     """Tokenize captions."""
     
     def __call__(self, sample):
-        image, captions = sample['image'], sample['captions']
+        image, caption = sample['image'], sample['caption']
         tokenizer = get_tokenizer('basic_english')
         
-        for i, caption in enumerate(captions):
-            captions[i] = tokenizer(caption)
+        caption = tokenizer(caption)
             
         return {'image': image,
-                'captions': captions}
+                'caption': caption}
+    
+    
+    

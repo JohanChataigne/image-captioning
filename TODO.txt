@@ -1,6 +1,14 @@
 - preprocess les mots en vecteurs de taille du vocabulaire
-- ajouter des transforms pour resize et crop les images
-- ajouter à chaque phrase les symboles <start> et <stop>
+- normalize les images avant le cnn 
 - utiliser un embedding random (non entrainé) pour redimensionner les mots à la taille des features map des images
 - boucler pdt l'entrainement sur les phrases : passer au lstm l'image puis les mots un par un
 - voir ensuite pour encoder les mots avec un word2vec entrainé
+- (avancé) lier les mots généré aux parties de l'image d'entrée
+- (avancé) stacker plusiuers lstm (num_layers param)
+
+
+Questions:
+
+    - descente de gradient dans la boucle lstm ?
+    - flatten en sortie de cnn ?
+    - embedding à part ?
