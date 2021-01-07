@@ -38,7 +38,7 @@ class RandomCaptionDataset(Dataset):
         captions = self.df_captions.loc[self.df_captions['image_id'] == im_name].iloc[:, 1]
         caption = random.choice(captions)
         
-        sample = {'image': image, 'caption': caption}
+        sample = {'image': image, 'caption': "<start>" + caption + "<stop>"}
 
         if self.transform:
             sample = self.transform(sample)
