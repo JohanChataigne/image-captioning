@@ -46,5 +46,8 @@ class RandomCaptionDataset(Dataset):
         return sample     
     
 
-dataset = RandomCaptionDataset('./flickr8k/images/train/')
-print(dataset[0])
+if __name__ == "__main__":
+    
+    dataset = RandomCaptionDataset('./flickr8k/images/train/')
+    print(dataset[0])
+    print(dataset[0]['image'].shape)

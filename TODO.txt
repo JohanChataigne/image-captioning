@@ -1,0 +1,6 @@
+- preprocess les mots en vecteurs de taille du vocabulaire
+- ajouter des transforms pour resize et crop les images
+- ajouter à chaque phrase les symboles <start> et <stop>
+- utiliser un embedding random (non entrainé) pour redimensionner les mots à la taille des features map des images
+- boucler pdt l'entrainement sur les phrases : passer au lstm l'image puis les mots un par un
+- voir ensuite pour encoder les mots avec un word2vec entrainé
