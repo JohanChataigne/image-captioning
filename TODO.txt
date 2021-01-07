@@ -6,7 +6,6 @@
 - (avancé) lier les mots généré aux parties de l'image d'entrée
 - (avancé) stacker plusiuers lstm (num_layers param)
 
-
 Questions:
 
     - descente de gradient dans la boucle lstm ?

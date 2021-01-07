@@ -2,6 +2,7 @@ from skimage import transform
 import numpy as np
 import torch
 from torchtext.data.utils import get_tokenizer
+from torchvision import transforms
 
 class Rescale(object):
     """Rescale the image in a sample to a given size. Usefull to have all samples of same shape in input of a CNN
@@ -90,6 +91,17 @@ class Tokenize(object):
             
         return {'image': image,
                 'caption': caption}
+
+class Normalize(object):
+    """Normalize an image. Image need to be a tensor"""
     
+    def __call__(self, sample):
+        image, caption = sample['image'], sample['caption']
+        
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        image = normalize(image)
+        
+        return {'image': image,
+                'caption': caption}
     
     
