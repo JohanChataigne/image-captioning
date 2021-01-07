@@ -42,5 +42,10 @@ class RepeatImageDataset(Dataset):
             sample = self.transform(sample)
 
         return sample
+
     
+if __name__ == "__main__":
     
+    dataset = RepeatImageDataset('./flickr8k/images/train/')
+    print(dataset[0])
+    print(dataset[0]['image'].shape)
