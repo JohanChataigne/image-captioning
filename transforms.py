@@ -1,7 +1,6 @@
 from skimage import transform
 import numpy as np
 import torch
-from torchtext.data.utils import get_tokenizer
 from torchvision import transforms
 
 class Rescale(object):
@@ -79,19 +78,6 @@ class ToTensor(object):
         return {'image': torch.from_numpy(image),
                 'caption': caption}
     
-    
-class Tokenize(object):
-    """Tokenize captions."""
-    
-    def __call__(self, sample):
-        image, caption = sample['image'], sample['caption']
-        tokenizer = get_tokenizer('basic_english')
-        
-        caption = tokenizer(caption)
-            
-        return {'image': image,
-                'caption': caption}
-
 class Normalize(object):
     """Normalize an image. Image need to be a tensor"""
     
@@ -104,4 +90,23 @@ class Normalize(object):
         return {'image': image,
                 'caption': caption}
     
+class OneHotEncode(object):
+    """One Hot Encoding the caption of a sample given the preprocessor object"""
     
+    
+    def __init__(self, text_preprocessor):
+        
+        self.preprocessor = text_preprocessor
+        
+    def __call__(self, sample):
+        
+        image, caption = sample['image'], sample['caption']
+        
+        caption = self.preprocessor.caption_to_vect(caption)
+        
+        return {'image': image,
+                'caption': caption}
+        
+        
+        
+        

@@ -36,7 +36,7 @@ class RepeatImageDataset(Dataset):
         
         caption = self.df_captions.iloc[index, 1]
         
-        sample = {'image': image, 'caption': "<start>" + caption + "<stop>"}
+        sample = {'image': image, 'caption': "<start> " + caption + " <stop>"}
 
         if self.transform:
             sample = self.transform(sample)
