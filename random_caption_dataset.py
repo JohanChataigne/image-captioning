@@ -25,7 +25,7 @@ class RandomCaptionDataset(Dataset):
         
     def __len__(self):
         """Length is nb_captions / captions_per_image"""
-        return len(self.df_captions) / 5
+        return int(len(self.df_captions) / 5)
         
     def __getitem__(self, index):
         if torch.is_tensor(index):
@@ -35,7 +35,8 @@ class RandomCaptionDataset(Dataset):
         im_path = os.path.join(self.root_dir, im_name)
         image = io.imread(im_path)
         
-        captions = self.df_captions.loc[self.df_captions['image_id'] == im_name].iloc[:, 1]
+        captions = list(self.df_captions.loc[self.df_captions['image_id'] == im_name].iloc[:, 1])
+        print(captions)
         caption = random.choice(captions)
         
         sample = {'image': image, 'caption': "<start> " + caption + " <stop>"}

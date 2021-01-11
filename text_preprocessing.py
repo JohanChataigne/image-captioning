@@ -31,9 +31,10 @@ class TextPreprocessor:
         # Get vocabulary
         vocab = np.array(raw_text)
         self.vocab = np.unique(vocab) 
+        self.vocab_size = len(vocab)
         
         # Build words encoding matrix
-        self.encoding_matrix = np.identity(self.vocab.shape[0])
+        self.encoding_matrix = np.identity(len(self.vocab))
         
         # Keep in memory start and stop vectors
         print(np.where(self.vocab == '<start>'))
