@@ -31,7 +31,7 @@ class TextPreprocessor:
         # Get vocabulary
         vocab = np.array(raw_text)
         self.vocab = np.unique(vocab) 
-        self.vocab_size = len(vocab)
+        self.vocab_size = len(self.vocab)
         
         # Build words encoding matrix
         self.encoding_matrix = np.identity(len(self.vocab))
