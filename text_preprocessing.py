@@ -42,6 +42,9 @@ class TextPreprocessor:
 
 
     def word_to_vect(self, word):
+        
+        assert word in self.vocab
+        
         word_idx = np.searchsorted(self.vocab, word)
         return self.encoding_matrix[word_idx]
     
