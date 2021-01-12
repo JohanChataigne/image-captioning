@@ -36,7 +36,6 @@ class RandomCaptionDataset(Dataset):
         image = io.imread(im_path)
         
         captions = list(self.df_captions.loc[self.df_captions['image_id'] == im_name].iloc[:, 1])
-        print(captions)
         caption = random.choice(captions)
         
         sample = {'image': image, 'caption': "<start> " + caption + " <stop>"}

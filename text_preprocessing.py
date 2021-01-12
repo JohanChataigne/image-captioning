@@ -37,9 +37,6 @@ class TextPreprocessor:
         self.encoding_matrix = np.identity(len(self.vocab))
         
         # Keep in memory start and stop vectors
-        print(np.where(self.vocab == '<start>'))
-        print(np.where(self.vocab == '<stop>'))
-        
         self.start = self.encoding_matrix[np.where(self.vocab == '<start>')].flatten()
         self.stop = self.encoding_matrix[np.where(self.vocab == '<stop>')].flatten()
 
@@ -76,13 +73,9 @@ class TextPreprocessor:
         Output :
             a string caption (without <start> and <stop> symbols)
         '''
-
-        print(vects)
-        print(self.start)
-        
-        
-        #if not np.equal(vects[0], self.start).all() or not np.equal(vects[-1], self.stop).all():
-        #    raise ValueError
+   
+        if not np.equal(vects[0], self.start).all() or not np.equal(vects[-1], self.stop).all():
+            raise ValueError
             
         return " ".join(list(map(lambda x: self.vect_to_word(x), vects)))
 
