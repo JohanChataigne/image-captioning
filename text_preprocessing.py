@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import torch
 
 class TextPreprocessor:
     
@@ -84,4 +85,14 @@ class TextPreprocessor:
 
 
 
+    def target_from_vect(self, words):
+        
+        if len(words) == 1:
+            return torch.tensor([torch.argmax(words)])
+        
+        return torch.tensor([torch.argmax(w) for w in words])
+        
+        
+        
+        
     
