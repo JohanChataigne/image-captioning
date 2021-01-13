@@ -15,6 +15,8 @@ class TextPreprocessor:
 
         # List of all the captions of the dataset
         raw_sentences = list(df_vocab.iloc[:, 1])
+        
+        self.raw_sentences = raw_sentences
 
         # String concatenating all the sentences
         raw_text = raw_sentences[0]
@@ -91,6 +93,14 @@ class TextPreprocessor:
             return torch.tensor([torch.argmax(words)])
         
         return torch.tensor([torch.argmax(w) for w in words])
+    
+    
+    def word_to_idx(self, word):
+        
+        assert word in self.vocab
+        
+        return np.searchsorted(self.vocab, word)
+
         
         
         
