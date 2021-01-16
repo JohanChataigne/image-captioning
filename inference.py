@@ -14,11 +14,8 @@ def sampling(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, max_le
         # Get first word prediction probabilities
         (hn, cn), probs = rnn(image_embedding)
 
-        
-        
         # Extract predicted word
         pred_idx = torch.argmax(probs)
-        print(pred_idx)
         pred_word_vect = tp.encoding_matrix[pred_idx]
         predicted_word = tp.vect_to_word(pred_word_vect)
 
@@ -33,9 +30,7 @@ def sampling(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, max_le
 
             (hn, cn), probs = rnn(word_embedding, (hn, cn))
 
-
             pred_idx = torch.argmax(probs)
-            print(pred_idx)
             pred_word_vect = tp.encoding_matrix[pred_idx]
             predicted_word = tp.vect_to_word(pred_word_vect)
 
@@ -50,7 +45,7 @@ def sampling(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, max_le
 
 
 # Generate caption for the given image with a beam search approach
-def beam_search(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, beam_k=20, max_length=20):
+def beam_search(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, beam_k=5, max_length=20):
     with torch.no_grad():
         
         captions = [[] for i in range(beam_k)]
@@ -68,18 +63,21 @@ def beam_search(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, bea
             # get the best_k_words for the next iteration : [word0 = (index, (hn, cn)), word1 = ...]
             best_k_words, captions = generate_next_k_words(best_k_words, captions, cnn, embedding, rnn, tp, embedding_size, hidden_size)
             
-            captions, captions_over = update_captions(captions, captions_over, max_length)
+            captions, captions_over = update_captions(captions, captions_over, max_length, tp)
             
         
         return list(map(lambda c: " ".join(list(map(lambda x: tp.vect_to_word(tp.encoding_matrix[int(x)]), c))), captions_over))
 
                            
 # update captions by removing the finished captions and adding them to captions_over
-def update_captions(captions, captions_over, max_length):
+def update_captions(captions, captions_over, max_length, tp):
     
-    for i, caption in enumerate(captions):
-        if len(caption) >= max_length or caption[-1] == '<stop>':
-            captions_over.append(captions.pop(i))
+    tmp = copy.deepcopy(captions)
+    for i, caption in enumerate(tmp):
+        word = tp.vect_to_word(tp.encoding_matrix[int(caption[-1])])
+        if len(caption) >= max_length or word == '<stop>':
+            captions.remove(caption)
+            captions_over.append(caption)
             
     return captions, captions_over
     
