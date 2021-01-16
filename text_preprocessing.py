@@ -31,6 +31,19 @@ class TextPreprocessor:
         # Split text into words
         raw_text = raw_text.split()
 
+        self.occurences = {}
+        
+        print("lenght of raw_text : " + str(len(raw_text)))
+        
+        l = len(raw_text)
+        c = 0
+        for w in raw_text:
+            if c % 10000 == 0:
+                print(str(c) + " / " + str(l))
+            c+=1
+            if not w in self.occurences:
+                self.occurences[w] = raw_text.count(w)
+        
         # Get vocabulary
         vocab = np.array(raw_text)
         self.vocab = np.unique(vocab) 
@@ -57,13 +70,20 @@ class TextPreprocessor:
         Parameters : 
             caption : a string of a caption, starting with <start> and ending with <stop>
         Output :
-            a vector of shape (nb_of_words, 9631) representing the caption
+            a vector of shape (nb_of_words, vocab_size) representing the caption
         '''
 
         words = np.array(caption.split())
-
-        vects = np.asarray(list(map(lambda x: self.word_to_vect(x), words)))
-
+        vects = []
+        
+        for w in words:
+            if self.occurences[w] >= 5:
+                vects.append(self.word_to_vect(w))
+        
+        #vects = np.asarray(list(map(lambda x: self.word_to_vect(x), words)))
+        
+        vects = np.asarray(vects)
+        
         return vects
 
     
@@ -75,7 +95,7 @@ class TextPreprocessor:
     def vect_to_caption(self, vects):
         '''
         Parameters : 
-            vect : a np array of shape (nb_of_words, 9631) that represents a caption starting with <start> ending with <stop>
+            vect : a np array of shape (nb_of_words, vocab_size) that represents a caption starting with <start> ending with <stop>
         Output :
             a string caption (without <start> and <stop> symbols)
         '''
@@ -102,7 +122,8 @@ class TextPreprocessor:
         return np.searchsorted(self.vocab, word)
 
         
-        
+p = TextPreprocessor('./flickr8k/annotations/annotations_caption_id.csv',sep=';')
+print(p.occurences)
         
         
     
