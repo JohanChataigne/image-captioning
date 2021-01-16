@@ -8,18 +8,17 @@ def sampling(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, max_le
 
         caption = list()
 
-        # Random init the lstm state
-        h0 = torch.rand((1, 1, hidden_size)).cuda()
-        c0 = torch.rand((1, 1, hidden_size)).cuda()
-
         # Encode input image
         image_embedding = cnn(image).view(-1, 1, embedding_size).cuda()
 
         # Get first word prediction probabilities
-        (hn, cn), probs = rnn(image_embedding, (h0, c0))
+        (hn, cn), probs = rnn(image_embedding)
 
+        
+        
         # Extract predicted word
         pred_idx = torch.argmax(probs)
+        print(pred_idx)
         pred_word_vect = tp.encoding_matrix[pred_idx]
         predicted_word = tp.vect_to_word(pred_word_vect)
 
@@ -34,7 +33,9 @@ def sampling(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, max_le
 
             (hn, cn), probs = rnn(word_embedding, (hn, cn))
 
+
             pred_idx = torch.argmax(probs)
+            print(pred_idx)
             pred_word_vect = tp.encoding_matrix[pred_idx]
             predicted_word = tp.vect_to_word(pred_word_vect)
 
