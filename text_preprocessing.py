@@ -19,33 +19,37 @@ class TextPreprocessor:
         self.raw_sentences = raw_sentences
 
         # String concatenating all the sentences
-        raw_text = raw_sentences[0]
+        self.raw_text = raw_sentences[0]
+        
+        # get the max length of the sentences of the dataset +2 for start and stop words
+        self.max_len = max(list(map(lambda x: len(x.split()), self.raw_sentences))) + 2
+        #print(self.max_len)
 
         # Build raw_text
         for i in range(1, len(raw_sentences)):
-            raw_text += ' ' + raw_sentences[i]
+            self.raw_text += ' ' + raw_sentences[i]
 
         # Add special words start and stop
-        raw_text += ' <start> <stop>'
+        self.raw_text += ' <start> <stop>'
 
         # Split text into words
-        raw_text = raw_text.split()
+        self.raw_text = self.raw_text.split()
 
         self.occurences = {}
         
-        print("lenght of raw_text : " + str(len(raw_text)))
+        #print("lenght of raw_text : " + str(len(raw_text)))
         
-        l = len(raw_text)
+        l = len(self.raw_text)
         c = 0
-        for w in raw_text:
-            if c % 10000 == 0:
-                print(str(c) + " / " + str(l))
+        for w in self.raw_text:
+            #if c % 10000 == 0:
+                #print(str(c) + " / " + str(l))
             c+=1
             if not w in self.occurences:
-                self.occurences[w] = raw_text.count(w)
+                self.occurences[w] = self.raw_text.count(w)
         
         # Get vocabulary
-        vocab = np.array(raw_text)
+        vocab = np.array(self.raw_text)
         self.vocab = np.unique(vocab) 
         self.vocab_size = len(self.vocab)
         
@@ -76,13 +80,13 @@ class TextPreprocessor:
         words = np.array(caption.split())
         vects = []
         
-        for w in words:
+        '''for w in words:
             if self.occurences[w] >= 5:
-                vects.append(self.word_to_vect(w))
+                vects.append(self.word_to_vect(w))'''
         
-        #vects = np.asarray(list(map(lambda x: self.word_to_vect(x), words)))
+        vects = np.asarray(list(map(lambda x: self.word_to_vect(x), words)))
         
-        vects = np.asarray(vects)
+        #vects = np.asarray(vects)
         
         return vects
 
@@ -120,10 +124,16 @@ class TextPreprocessor:
         assert word in self.vocab
         
         return np.searchsorted(self.vocab, word)
-
+    
+    def pad_sentence(self, sentence):
         
-p = TextPreprocessor('./flickr8k/annotations/annotations_caption_id.csv',sep=';')
-print(p.occurences)
+        len_sentence = len(sentence.split())
+        for i in range(self.max_len - len_sentence):
+            sentence += ' <stop>'
+            
+        return sentence
+
+
         
         
     

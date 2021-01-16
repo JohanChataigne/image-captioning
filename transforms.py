@@ -17,7 +17,7 @@ class Rescale(object):
         self.output_size = output_size
 
     def __call__(self, sample):
-        image = sample['image']
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
 
         h, w = image.shape[:2]
         if isinstance(self.output_size, int):
@@ -32,7 +32,7 @@ class Rescale(object):
 
         img = transform.resize(image, (new_h, new_w))
 
-        return {'image': img, 'caption': sample['caption']}
+        return {'image': img, 'caption': caption, 'im_path': im_path}
 
 class RandomCrop(object):
     """Crop randomly the image in a sample.
@@ -51,7 +51,7 @@ class RandomCrop(object):
             self.output_size = output_size
 
     def __call__(self, sample):
-        image, caption = sample['image'], sample['caption']
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
 
         h, w = image.shape[:2]
         new_h, new_w = self.output_size
@@ -63,32 +63,36 @@ class RandomCrop(object):
                       left: left + new_w]
 
 
-        return {'image': image, 'caption': caption}
+        return {'image': image,
+                'caption': caption,
+                'im_path': im_path}
     
 class ToTensor(object):
     """Convert ndarrays in a sample to Tensors."""
 
     def __call__(self, sample):
-        image, caption = sample['image'], sample['caption']
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
 
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C X H X W
         image = image.transpose((2, 0, 1))
         return {'image': torch.from_numpy(image),
-                'caption': caption}
+                'caption': caption,
+                'im_path': im_path}
     
 class Normalize(object):
     """Normalize an image. Image need to be a tensor"""
     
     def __call__(self, sample):
-        image, caption = sample['image'], sample['caption']
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
         
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         image = normalize(image)
         
         return {'image': image,
-                'caption': caption}
+                'caption': caption,
+                'im_path': im_path}
     
 class OneHotEncode(object):
     """One Hot Encoding the caption of a sample given the preprocessor object"""
@@ -100,12 +104,46 @@ class OneHotEncode(object):
         
     def __call__(self, sample):
         
-        image, caption = sample['image'], sample['caption']
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
         
         caption = self.preprocessor.caption_to_vect(caption)
         
         return {'image': image,
-                'caption': caption}
+                'caption': caption,
+                'im_path': im_path}
+    
+class PadSentence(object):
+    """Add padding to the caption of a sample given the preprocessor object"""
+    
+    def __init__(self, text_preprocessor):
+        
+        self.preprocessor = text_preprocessor
+        
+    def __call__(self, sample):
+        
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
+        
+        caption = self.preprocessor.pad_sentence(caption)
+        
+        return {'image': image,
+                'caption': caption,
+                'im_path': im_path}
+    
+class AddDelimiters(object):
+    """Add <start> and <stop> to the caption of a sample given the preprocessor object"""
+        
+    def __call__(self, sample):
+        
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
+        
+        caption = '<start> ' + caption + ' <stop>'
+        
+        return {'image': image,
+                'caption': caption,
+                'im_path': im_path}
+    
+    
+    
         
         
         

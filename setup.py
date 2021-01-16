@@ -7,7 +7,7 @@ import pandas as pd
 #os.system('pip install -r requirements.txt')
 #os.system('kaggle datasets download -d adityajn105/flickr8k')
 #os.system('unzip flickr8k.zip')
-os.system('rm -f captions.txt')
+#os.system('rm -f captions.txt')
 os.system('mkdir flickr8k/images/')
 os.system('mkdir flickr8k/images/train')
 os.system('mkdir flickr8k/images/test')
