@@ -1,5 +1,5 @@
-import torch 
-
+import torch
+import copy
 
 # Generate caption for given image
 def sampling(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, max_length=20):
@@ -48,34 +48,43 @@ def sampling(cnn, embedding, rnn, image, tp, embedding_size, hidden_size, max_le
         return caption
 
 
-def beamSearch(cnn, embedding, rnn, image, tp, embedding_size, beam_k=20, max_length=20):
+# Generate caption for the given image with a beam search approach
+def beam_search(cnn, embedding, rnn, image, tp, embedding_size, beam_k=20, max_length=20):
     with torch.no_grad():
         
         captions = [[] for i in range(beam_k)]
-        captions_over = [False for i in range(beam_k)]
+        captions_over = []
         
-        best_k_words = generate_first_k_words(cnn, embedding, rnn, image, tp, embedding_size, beam_k)
-        previous_best_k_words = best_k_words.copy()
+        # get the best_k_words for the first iteration : [word0 = (index, (hn, cn)), word1 = ...]
+        best_k_words = generate_first_k_words(captions, cnn, embedding, rnn, image, tp, embedding_size, beam_k)
         
-        while not all(captions_over):
+        # initialize each caption with a word
+        for i in range(beam_k):
+            captions[i].append(best_k_words[i][0])
+        
+        while not len(captions_over) == beam_k:
             
-            previous_best_k_words, captions = generate_next_k_words(previous_best_k_words, captions, 
-                                                                    cnn, embedding, rnn, image, tp, embedding_size, beam_k)
+            # get the best_k_words for the next iteration : [word0 = (index, (hn, cn)), word1 = ...]
+            best_k_words, captions = generate_next_k_words(best_k_words, captions, cnn, embedding, rnn, tp, embedding_size)
             
-            captions_over = update_captions_state(captions, captions_over)
+            captions, captions_over = update_captions(captions, captions_over)
+            
+        
+        return captions_over
 
                            
-            
-def update_captions_state(captions, captions_over):
+# update captions by removing the finished captions and adding them to captions_over
+def update_captions(captions, captions_over):
     
     for i, caption in enumerate(captions):
-        if len(caption > max_length) or caption[-1] == '<stop>':
-            captions_over[i] = True
+        if len(caption >= max_length) or caption[-1] == '<stop>':
+            captions_over.append(captions.pop(i))
             
-    return captions_over
+    return captions, captions_over
     
     
-            
+# Generate the first best k words predicted by the rnn from the image
+# Return: best_k_words = [(index, (hn, cn)), ...]
 def generate_first_k_words(cnn, embedding, rnn, image, tp, embedding_size, beam_k):
     
     # Random init the lstm state
@@ -88,62 +97,68 @@ def generate_first_k_words(cnn, embedding, rnn, image, tp, embedding_size, beam_
     # Get first word prediction probabilities
     (hn, cn), probs = rnn(image_embedding, (h0, c0))
 
-    # (index, (hn, cn)
+    # best_k_words = [(index, (hn, cn)), ...]
     best_k_words = []
 
-    top_k = torch.topk(probs, beam_k)
+    # get the indices of the best k probabilities of word from probs
+    top_k_indices = torch.topk(probs, beam_k).indices
 
-    for i in top_k.indices:
+    # append the tuple (index, (hn, cn)) to best_k_words for each word 
+    for i in top_k_indices:
 
         index = int(i)
-        word_vect = tp.encoding_matrix[index]
-        word = tp.vect_to_word(word_vect)
-
+        #word_vect = tp.encoding_matrix[index]
+        #word = tp.vect_to_word(word_vect)
         best_k_words.append((index, (hn, cn)))
         
     return best_k_words
         
         
-                                
-def generate_next_k_words(previous_best_k_words, captions, cnn, embedding, rnn, image, tp, embedding_size, beam_k):
+# generate the next best k words predicted by the rnn from the previous best k words
+# Return: new_best_k_words = [(index, (hn, cn)), ...], new_captions
+def generate_next_k_words(previous_best_k_words, captions, cnn, embedding, rnn, tp, embedding_size):
     
-    all_probs = torch.empty(0)
-    list_probs = []        
-    best_k_words = []   
+    all_probs = torch.empty(0)      
+    new_best_k_words = []   
 
-    # get the k lists of probabilities
-    for i in range(beam_k):
+    # get k lists of probabilities, one for each word of previous_best_k_words
+    for i in range(len(captions)):
 
         index = previous_best_k_words[i][0]
         word_embedding = embedding(index).view(1, 1, embedding_size).cuda()
 
         (hn, cn), probs = rnn(word_embedding, previous_best_k_words[i][1])
-
-        list_probs.append(probs)
+        
+        # concatenate all the probs lists
         all_probs = torch.cat((all_probs, probs))
 
-        best_k_words.append((-1, (hn, cn)))
+        new_best_k_words.append((-1, (hn, cn)))
         
-        
-    list_indices = get_k_best_indices(all_probs, beam_k, tp.vocab_size)
+    # get indices for the best k words: (index of the list in which the word is, index of the word in this list = index of the word in the vocabulary)
+    list_indices = get_k_best_indices(all_probs, len(captions), tp.vocab_size)
     
+    # update the new_best_k_words and captions
+    new_captions = []
     for i, indices in enumerate(list_indices):
-        best_k_words[i][0] = indices[1]
+        new_best_k_words[i][0] = indices[1]
         
-        # fix the previous word in the caption for this word
-        word_vect = tp.encoding_matrix[previous_best_k_words[i][0]]
-        word = tp.vect_to_word(word_vect)
-        captions[i].append(word)
+        caption = copy.deepcopy(captions[indices[0]])
+        caption.append(indices[1])
+        new_captions.append(caption)
+    
+    assert [word[0] for word in new_best_k_words] == [caption[-1] for caption in new_captions]
         
-    return best_k_words, captions
+    return new_best_k_words, new_captions
         
     
         
         
-# get a list of tuples (list index, index in the list) from all_probs (the concatenation of all probs list)
+# get a list of tuples (index of the list, index in the list) for the best k probabilities from all_probs
 def get_k_best_indices(all_probs, k, vocab_size):
     
-    best_k_indices = torch.topk(all_probs, k)
+    # get the indices of the best k probabilities of word from all_probs
+    top_k_indices = torch.topk(all_probs, k).indices
     
-    list_indices = list(map(lambda x: (int(x) // vocab_size, int(x) % vocab_size), best_k_indices))
+    # get the list of tuples of indicess
+    list_indices = list(map(lambda x: (int(x) // vocab_size, int(x) % vocab_size), top_k_indices))
     return list_indices                 
