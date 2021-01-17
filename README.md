@@ -37,7 +37,7 @@ This project deals with the problem of **automatically describing the content of
 
 In order to use this project locally:
 1) **Clone this repository** with `git clone https://github.com/JohanChataigne/image-captioning.git`.  
-2) **Execute setup.py** with `python3 setup.py`. This will download the dataset's images and organize your repository.
+2) **Execute setup.py** with `python3 setup.py`. This will download the dataset's images, install the requirements and organize your repository.
 
 
 After that, you should be able to use the notebooks without difficulties.  

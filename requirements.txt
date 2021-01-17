@@ -1,12 +1,10 @@
 ipywidgets==7.6.3
-matplotlib @ file:///C:/ci/matplotlib-base_1603356257853/work
-numpy @ file:///C:/ci/numpy_and_numpy_base_1603468620949/work
-pandas @ file:///C:/ci/pandas_1609008089615/work
+kaggle==1.5.10
+matplotlib==3.3.2
+numpy==1.19.2
+pandas==1.2.0
+sacrebleu==1.4.14
 scikit-image==0.17.2
-scikit-learn @ file:///C:/ci/scikit-learn_1598376983131/work
-scipy @ file:///C:/ci/scipy_1597686737426/work
-seaborn @ file:///tmp/build/80754af9/seaborn_1600553570093/work
-torch @ file:///C:/ci/pytorch_1596721630134/work
+torch==1.6.0
 torchsummary==1.5.1
-torchtext==0.7.0
 torchvision==0.7.0
