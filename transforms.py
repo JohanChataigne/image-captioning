@@ -143,6 +143,27 @@ class AddDelimiters(object):
                 'im_path': im_path}
     
     
+
+class RemoveUnpopulars(object):
+    """Remove in a string caption all the words not matching the occurences criteria"""
+        
+    def __init__(self, text_preprocessor, n):
+        
+        assert (n > 0)
+        
+        self.text_preprocessor = text_preprocessor
+        self.n = n
+        
+        
+    def __call__(self, sample):
+        
+        image, caption, im_path = sample['image'], sample['caption'], sample['im_path']
+        
+        caption = self.text_preprocessor.remove_unpopulars(caption, self.n)
+        
+        return {'image': image,
+                'caption': caption,
+                'im_path': im_path}
     
         
         

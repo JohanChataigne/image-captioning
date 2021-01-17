@@ -35,6 +35,7 @@ class TextPreprocessor:
         # Split text into words
         self.raw_text = self.raw_text.split()
 
+        # Build occurences dict for each word in the vocabulary
         self.occurences = {}
         
         #print("lenght of raw_text : " + str(len(raw_text)))
@@ -57,8 +58,12 @@ class TextPreprocessor:
         self.encoding_matrix = np.identity(len(self.vocab))
         
         # Keep in memory start and stop vectors
-        self.start = self.encoding_matrix[np.where(self.vocab == '<start>')].flatten()
-        self.stop = self.encoding_matrix[np.where(self.vocab == '<stop>')].flatten()
+        
+        self.start_idx = np.where(self.vocab == '<start>')[0]
+        self.stop_idx = np.where(self.vocab == '<stop>')[0]
+        
+        self.start = self.encoding_matrix[self.start_idx].flatten()
+        self.stop = self.encoding_matrix[self.stop_idx].flatten()
 
 
     def word_to_vect(self, word):
@@ -78,17 +83,9 @@ class TextPreprocessor:
         '''
 
         words = np.array(caption.split())
-        vects = []
         
-        '''for w in words:
-            if self.occurences[w] >= 5:
-                vects.append(self.word_to_vect(w))'''
-        
-        vects = np.asarray(list(map(lambda x: self.word_to_vect(x), words)))
-        
-        #vects = np.asarray(vects)
-        
-        return vects
+        return np.asarray(list(map(lambda x: self.word_to_vect(x), words)))
+
 
     
     def vect_to_word(self, vect):
@@ -125,6 +122,7 @@ class TextPreprocessor:
         
         return np.searchsorted(self.vocab, word)
     
+    
     def pad_sentence(self, sentence):
         
         len_sentence = len(sentence.split())
@@ -134,6 +132,18 @@ class TextPreprocessor:
         return sentence
 
 
+    def remove_unpopulars(self, sentence, n):
         
+        s = sentence.split()
+        clean_sentence = list()
+        
+        for word in s:
+            if self.occurences[word] >= n:
+                clean_sentence.append(word)
+                
+                
+        return " ".join(clean_sentence)
+        
+    
         
     
