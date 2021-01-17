@@ -17,7 +17,7 @@ This project deals with the problem of **automatically describing the content of
  ┃ ┣ 📂images  
  ┃ ┃ ┣ 📂train  
  ┃ ┗ ┗ 📂test  
- ┣ 📂models  
+ ┣ 📂models // *contains the saved trained models* 
  ┣ 📜evaluate.ipynb // *Computes the score of the different models*  
  ┣ 📜inference.py // *Contains inference methods for caption choice*  
  ┣ 📜model_v1_random.ipynb  
