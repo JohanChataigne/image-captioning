@@ -4,10 +4,10 @@ import pandas as pd
 
 ### Install requirements and the images
 
-#os.system('pip install -r requirements.txt')
-#os.system('kaggle datasets download -d adityajn105/flickr8k')
-#os.system('unzip flickr8k.zip')
-#os.system('rm -f captions.txt')
+os.system('pip install -r requirements.txt')
+os.system('kaggle datasets download -d adityajn105/flickr8k')
+os.system('unzip flickr8k.zip')
+os.system('rm -f captions.txt')
 os.system('mkdir flickr8k/images/')
 os.system('mkdir flickr8k/images/train')
 os.system('mkdir flickr8k/images/test')
@@ -21,29 +21,29 @@ df_test_images = pd.read_csv('./flickr8k/annotations/testImages.csv', names=['fi
 
 imagesPath = 'flickr8k/images/'
 trainPath = imagesPath + 'train/'
-testPath = imagesPath + 'test/' 
+testPath = imagesPath + 'test/'
 images = os.listdir(imagesPath)
 
 for im in images:
-    
+
     for file in df_train_images['filename']:
         if file == im:
             fullpath = imagesPath + im
             os.system('mv ' + fullpath + ' ' + trainPath)
-            
+
     for file in df_test_images['filename']:
         if file == im:
             fullpath = imagesPath + im
             os.system('mv ' + fullpath + ' ' + testPath)
 
-            
-            
+
+
 ### Clean test and train annotations
 
 def clean_annotations(dataset_type):
-    
+
     assert dataset_type in ['train', 'test']
-    
+
     lines = list()
 
     with open(f'./flickr8k/annotations/annotations_image_id_{dataset_type}.csv', 'r') as fr:
@@ -64,7 +64,7 @@ def clean_annotations(dataset_type):
         for line in lines:
 
             fw.write(line)
-        
-        
+
+
 clean_annotations('train')
 clean_annotations('test')
